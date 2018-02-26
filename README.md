@@ -1,1 +1,1 @@
-#My first repo
+# Skeleton project for Swagger

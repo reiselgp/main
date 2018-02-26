@@ -1,0 +1,178 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Paris Pricing Backend App
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /crear_plan/leer_excel:
+    x-swagger-router-controller: excel_reader
+    post:
+      summary: Uploads a file.
+      operationId: excel_reader
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          description: The file to upload.
+          required: true
+          x-mimetype: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /clusters:
+    x-swagger-router-controller: clusters
+    get:
+      summary: Returs clusters and stores.
+      operationId: getClustersAndStores
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /plans:
+      x-swagger-router-controller: plans
+      get:
+        summary: Returs plans.
+        operationId: getPlans
+        parameters: []
+        responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/SuccessResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+  /subdeparments:
+    x-swagger-router-controller: subdeparments
+    get:
+      summary: Returs subdeparments associated to plan.
+      operationId: getSubDeparmentsByPlanId
+      parameters:
+        -  in: query
+           name: planId
+           type: string
+           required: true
+           description: Varchar ID of the plan to get its subdeparments
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /styles:
+    x-swagger-router-controller: styles
+    get:
+      summary: Returs styles.
+      operationId: getStylesByPlanId
+      parameters:
+        -  in: query
+           name: planId
+           type: string
+           required: true
+           description: Varchar ID of the plan to get its styles
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /price-points:
+      x-swagger-router-controller: prices
+      get:
+        summary: Returs price points associated to the division.
+        operationId: getPricePointsByDivisionId
+        parameters:
+          -  in: query
+             name: divisionId
+             type: string
+             required: true
+             description: Varchar ID of the division to get its price points
+        responses:
+          "200":
+            description: Success
+            schema:
+              $ref: "#/definitions/SuccessResponse"
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  ErrorResponse:
+    type: object
+    required:
+      - message
+    properties:
+      message:
+        type: string
+      code:
+        type: string
+      errors:
+        $ref: "#/definitions/PartialErrors"
+  SuccessResponse:
+    type: object
+    required:
+      - info
+    properties:
+      info:
+        $ref: "#/definitions/InfoResponse"
+      data:
+        $ref: "#/definitions/ExcelJSONResponse"
+      PartialErrors:
+        $ref: "#/definitions/PartialErrors"
+  ExcelJSONResponse:
+    type: array
+    items:
+      $ref: "#/definitions/ExcelJSONObject"
+  ExcelJSONObject:
+    type: object
+  InfoResponse:
+    type: object
+    required:
+      - status
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+  PartialErrors:
+    type: array
+    items:
+      type: string
